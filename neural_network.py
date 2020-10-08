@@ -1,6 +1,7 @@
 import numpy
 import scipy.special
 
+
 class NeuralNetwork:
 
     def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate):
@@ -20,8 +21,31 @@ class NeuralNetwork:
 
         self.activation_function = lambda x: scipy.special.expit(x)
 
-    def train(self):
-        pass
+    def train(self, inputs_list, targets_list):
+        inputs = numpy.array(inputs_list, ndmin=2).T
+        targets = numpy.array(targets_list, ndmin=2).T
+
+        # X = W * I
+        # output at node = sigmoid function(x)
+        # repeat for hidden and output nodes
+        hidden_inputs = numpy.dot(self.wih, inputs)
+        hidden_outputs = self.activation_function(hidden_inputs)
+        final_inputs = numpy.dot(self.who, hidden_outputs)
+        final_outputs = self.activation_function(final_inputs)
+
+        # error = target - output
+        output_errors = targets - final_outputs
+
+        # hidden layer error is output_errors split by weights recombined at hidden nodes
+        # errors_hidden = weights_hidden (transposed) * errors(output)
+        hidden_errors = numpy.dot(self.who.T, output_errors)
+
+        # update weights for links between the hidden and output layers
+        self.who += self.lf * numpy.dot((output_errors * final_outputs * (1 - final_outputs)),
+                                        numpy.transpose(hidden_outputs))
+        # update weights for links between input and hidden layers
+        self.wih += self.lf * numpy.dot((hidden_errors * hidden_outputs * (1 - hidden_outputs)),
+                                        numpy.transpose(inputs))
 
     def query(self, inputs_list):
         # convert inputs list into 2d array
@@ -30,9 +54,8 @@ class NeuralNetwork:
         # X = W * I
         # output at node = sigmoid function(x)
         # repeat for hidden and output nodes
-        hidden_inputs = numpy.dot(self.wih, inputs_list)
+        hidden_inputs = numpy.dot(self.wih, inputs)
         hidden_outputs = self.activation_function(hidden_inputs)
         final_inputs = numpy.dot(self.who, hidden_outputs)
         final_outputs = self.activation_function(final_inputs)
-
         return final_outputs
