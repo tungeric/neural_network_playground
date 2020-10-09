@@ -41,10 +41,10 @@ class NeuralNetwork:
         hidden_errors = numpy.dot(self.who.T, output_errors)
 
         # update weights for links between the hidden and output layers
-        self.who += self.lf * numpy.dot((output_errors * final_outputs * (1 - final_outputs)),
+        self.who += self.lr * numpy.dot((output_errors * final_outputs * (1 - final_outputs)),
                                         numpy.transpose(hidden_outputs))
         # update weights for links between input and hidden layers
-        self.wih += self.lf * numpy.dot((hidden_errors * hidden_outputs * (1 - hidden_outputs)),
+        self.wih += self.lr * numpy.dot((hidden_errors * hidden_outputs * (1 - hidden_outputs)),
                                         numpy.transpose(inputs))
 
     def query(self, inputs_list):
